@@ -1,14 +1,20 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { BsGithub, BsGoogle } from "react-icons/bs";
+import { toast } from "react-hot-toast";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import Input from "@/app/components/inputs/Input";
 import Button from "@/app/components/Button";
 import AuthSocialButton from "./AuthSocialButton";
 
 const AuthForm = () => {
+  const session = useSession();
+  const router = useRouter();
   const [variant, setVariant] = useState("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,11 +41,26 @@ const AuthForm = () => {
   const onSubmit = (data) => {
     setIsLoading(true);
     if (variant === "REGISTER") {
-      // register
+      axios
+        .post("/api/register", data)
+        .then(() => signIn("credentials", data))
+        .catch(() => toast.error("Something went wrong"))
+        .finally(() => setIsLoading(false));
     }
 
     if (variant === "LOGIN") {
-      // NEXTauth
+      signIn("credentials", { ...data, redirect: false })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Invalid credentials");
+          }
+
+          if (callback?.ok && !callback?.error) {
+            toast.success("Logged in!");
+            router.push("/users");
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
@@ -47,6 +68,13 @@ const AuthForm = () => {
     setIsLoading(true);
     // social signin
   };
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/users");
+      console.log("Authenticated");
+    }
+  }, [session?.status, router]);
 
   return (
     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -97,6 +125,7 @@ const AuthForm = () => {
           </div>
 
           <div className="mt-6 flex gap-2">
+            {/* These buttons are disabled */}
             <AuthSocialButton
               icon={BsGithub}
               onClick={() => socialAction("github")}
