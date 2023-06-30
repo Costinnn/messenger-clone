@@ -1,0 +1,19 @@
+import React from "react";
+import Sidebar from "../components/sidebar/Sidebar";
+import ConversationList from "./components/ConversationList";
+import getConversations from "../actions/getConversations";
+
+const ConversationsLayout = async ({ children }) => {
+  const conversations = await getConversations();
+
+  return (
+    <Sidebar>
+      <div className="h-screen">
+        <ConversationList initialItems={conversations} />
+        {children}
+      </div>
+    </Sidebar>
+  );
+};
+
+export default ConversationsLayout;
