@@ -1,13 +1,14 @@
 import getConversationById from "@/app/actions/getConversationById";
-import getConversations from "@/app/actions/getConversations";
 import EmptyState from "@/app/components/EmptyState";
 import Header from "./components/Header";
 import Body from "./components/Body";
 import Form from "./components/Form";
+import getMessages from "@/app/actions/getMessages";
+
 
 const ConversationId = async ({ params }) => {
   const conversation = await getConversationById(params.conversationId);
-  const messages = await getConversations(params.conversationId);
+  const messages = await getMessages(params.conversationId);
 
   if (!conversation) {
     return (
@@ -23,7 +24,7 @@ const ConversationId = async ({ params }) => {
     <div className="lg:pl-80 h-screen">
       <div className="h-full flex flex-col">
         <Header conversation={conversation} />
-        <Body />
+        <Body initialMessages={messages}/>
         <Form />
       </div>
     </div>
