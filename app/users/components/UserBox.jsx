@@ -11,13 +11,14 @@ const UserBox = ({ data }) => {
 
   const handleClick = useCallback(() => {
     setIsLoading(true);
-    axios.post("/api/conversations", { userId: data.id }).then((data) => {
-      router
-        .push(`/conversations/${data.data.id}`)
-        .finally(() => setIsLoading(false));
-    });
+    axios
+      .post("/api/conversations", { userId: data.id })
+      .then((data) => {
+        router.push(`/conversations/${data.data.id}`);
+      })
+      .finally(() => setIsLoading(false));
   }, [data, router]);
-console.log(data)
+
   return (
     <div
       onClick={handleClick}
